@@ -20,18 +20,7 @@ function App() {
   const [tarefaAtual, dispatch] = useReducer(taskReducer, [])
   //dispatch - funcao utilizada para despachar as ações para o useReducer executar 
 
-  useEffect(() => {
-    const armazenarTarefa = JSON.parse(localStorage.getItem('tarefaAtual'))
-  }, [])
-  //armazenando nossa tarefa em objeto json no localstorage (cache do navegador)
-
-  useEffect(() =>{
-    localStorage.setItem('tarefaAtual', JSON.stringify(tarefaAtual))
-  })
-  //buscando nossa tarefa que ta armazenada na memoria local e transformando em string
-
   //funcao adicionar tarefa
-
   const addTarefa = useCallback(() =>{
   //usando o useCallback para que as tarefas permaneçam as mesmas entre as renderizacões
   //verificar se a tarefa nao  ta vazia para que ela seja adicionada
@@ -41,7 +30,12 @@ function App() {
     }
   }, [tarefa])
 
-
+  //funcao marcar tarefa como concluida
+  const concluirTarefa = useCallback((index) =>{
+    dispatch ({type: 'CONCLUIDO', payload: index})
+    //disparando ação tipo concluido para o useReducer
+    //usando o meu dado atual (payload) a partir do seu index (posição)
+  })
 
     return (
     <>
@@ -59,14 +53,27 @@ function App() {
           {/*criando nossa lista de tarefas
             vamos usar o .map para maperar cada tarefa da lista, seguindo um index de posicao de cada tarefa
           */}
-  
           {tarefaAtual.map((tarefas, index) => (
           // lista de tarefas de acordo com a posicao 
-            <li kay={index}>
-              {tarefas.text}</li>
+            <li key={index}>
+              <span style={{ textDecoration: tarefas.completed ? 'line-through' : 'none' }}>
+                {/*adicionando style que verifica se a tarefa foi marcada como completed e adiciona um riscado, se nao foi marcada, nao tem nada de textDecoration*/}
+                 {tarefas.text}
+              </span>
+              {
+                //verificar se a tarefa atual foi adicionada e se não esta concluida
+                //pq o completed inicial foi marcado como false
+                !tarefaAtual.completed && (
+                  <>
+                  {/*botao que chama funcao concluir tarefa a partir do seu index (posicao) */}
+                    <button onClick={() => concluirTarefa(index)}>
+                      Concluir tarefa
+                    </button>
+                  </>
+                )
+              }
+            </li>
           ))}
-
-
         </ul>
       </div>
     </>
